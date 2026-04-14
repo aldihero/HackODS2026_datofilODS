@@ -9,7 +9,7 @@ Estudiante de maestría con gran interés en los problemas sociales de México q
 
 ### Daniel Mondragon Tapia
 
----
+
 [Declaración de uso de IA](ai-log.md)
 ---
 
