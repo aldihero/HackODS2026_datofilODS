@@ -146,3 +146,39 @@ fig_mapa = px.choropleth(
 
 fig_mapa
 ```
+
+### Row
+
+```{python}
+#| title: "Rezago escolar y carencia en los hogares"
+
+rezago = (
+    pd.read_csv(
+        '../datos/cuadro26A_rezago_educativo.csv', 
+        skiprows = 9, usecols = [2, 6]
+        )
+    .dropna(how = 'all')
+    .rename({
+        'Unnamed: 2': 'entidad', 
+        '2022**': 'Rezago escolar (3 a 21 años)'
+        }, axis = 1)
+)
+
+carencia = (
+    pd.read_csv(
+        '../datos/cuadro27_pobreza_porgrupo_etarios.csv',
+        skiprows = 8, usecols = [2, 76]
+    )
+    .dropna(how = 'all')
+    .rename({
+        'Unnamed: 2': 'entidad', 
+        '2022**.14': 'Carencia promedio'
+        }, axis = 1)
+)
+
+px.scatter(
+    rezago.merge(carencia, on = 'entidad'), 
+    x = 'Carencia promedio', y = 'Rezago escolar (3 a 21 años)', 
+    trendline = 'ols'
+    )
+```
