@@ -31,7 +31,7 @@ def formatearIndicador(datos, cols, valor='valor'):
 #%%
 """Datos de rezago educativo"""
 
-cuadro26A = limpiar("../Datos/cuadro26A_rezago_educativo.csv", 9,7, True)
+cuadro26A = limpiar("../datos/cuadro26A_rezago_educativo.csv", 9,7, True)
 
 cols = [f'col{i}' for i in range(1, 5)]
 tmp1 = formatearIndicador(cuadro26A, cols, 'porc_pob_3_21_no_asist_sin_oblig')
@@ -55,7 +55,7 @@ datosCompletos = reduce(lambda left, right: pd.merge(left, right, on=['estado', 
 # %%
 """Datos de carencia alimentaria"""
 
-cuadro26F = limpiar("../Datos/cuadro26F_carencia_alimentacion.csv", 8,6, False )
+cuadro26F = limpiar("../datos/cuadro26F_carencia_alimentacion.csv", 8,6, False )
 cols = [f'col{i}' for i in range(1, 5)]
 tmp1 = formatearIndicador(cuadro26F, cols, 'porc_seg_aliment')
 
@@ -79,11 +79,11 @@ datosCompletos = pd.merge(datosCompletos, dfsTemp, on=['estado', 'anio'], how='o
 # %%
 
 """Datos de carencias"""
-cuadro27 = limpiar("../Datos/cuadro27_pobreza_porgrupo_etarios.csv", 8,6, False )
+cuadro27 = limpiar("../datos/cuadro27_pobreza_porgrupo_etarios.csv", 8,6, False )
 cols = [f'col{i}' for i in range(25, 29)]
 tmp1 = formatearIndicador(cuadro26F, cols, 'porc_carencia_menor18')
 
-cuadro28 = limpiar("../Datos/cuadro28_pobreza_porgrupo_etarios_parte2.csv", 7,6, False )
+cuadro28 = limpiar("../datos/cuadro28_pobreza_porgrupo_etarios_parte2.csv", 7,6, False )
 cols = [f'col{i}' for i in range(13, 17)]
 tmp2 = formatearIndicador(cuadro26F, cols, 'porc_carencia_6_11')
 
@@ -93,7 +93,73 @@ dfs = [tmp1, tmp2, tmp3]
 dfsTemp = reduce(lambda left, right: pd.merge(left, right, on=['estado', 'anio'], how='outer'), dfs)
 # %%
 datosCompletos = pd.merge(datosCompletos, dfsTemp, on=['estado', 'anio'], how='outer')
-datosCompletos.to_csv("../datos/porcentajes.csv")
-# %%
 
 # %%
+# Datos de ocupación infantil 
+
+# 1. Cargar los archivos originales
+# Nota: Asegúrate de que los nombres de los archivos coincidan con los tuyos
+df_edu_raw = pd.read_csv('../datos/Tasa_abandono_escolar_entidad_federativa.csv', skiprows=5)
+
+# 2. Limpieza inicial del archivo de Educación (INEGI)
+# Limpiar espacios en blanco en los nombres de las columnas
+df_edu_raw.columns = [c.strip() for c in df_edu_raw.columns]
+
+# Renombrar columnas clave para facilitar el manejo
+df_edu = df_edu_raw.rename(columns={
+    'Entidad federativa': 'estado', 
+    'Nivel educativo': 'nivel'
+})
+
+# 3. Transformar la tabla de formato ancho a largo (Melt)
+# Esto pasa los años de columnas a una sola columna llamada 'ciclo'
+df_melted = df_edu.melt(
+    id_vars=['estado', 'nivel'], 
+    value_vars=['2015/2016', '2020/2021', '2021/2022'],
+    var_name='ciclo', 
+    value_name='tasa_abandono'
+)
+
+# 4. Convertir Ciclo Escolar a Año numérico
+# Ejemplo: '2015/2016' -> 2016 (para que coincida con tus datos de hambre)
+def extraer_anio(ciclo):
+    try:
+        return int(ciclo.split('/')[1])
+    except:
+        return None
+
+df_melted['anio'] = df_melted['ciclo'].apply(extraer_anio)
+
+# 5. Pivotar los niveles educativos a columnas
+# Queremos que cada nivel (Primaria, Secundaria, etc.) sea una columna propia
+df_pivoted = df_melted.pivot_table(
+    index=['estado', 'anio'], 
+    columns='nivel', 
+    values='tasa_abandono'
+).reset_index()
+
+# Limpiar los nombres de las nuevas columnas
+df_pivoted.columns.name = None
+df_pivoted = df_pivoted.rename(columns={
+    'Primaria': 'tasa_abandono_primaria',
+    'Secundaria': 'tasa_abandono_secundaria',
+    'Media superior': 'tasa_abandono_media_superior',
+    'Superior': 'tasa_abandono_superior'
+})
+
+# 6. Unificar con el archivo de porcentajes original
+# Eliminamos la columna 'Unnamed: 0' si existe para que no estorbe
+if 'Unnamed: 0' in datosCompletos.columns:
+    datosCompletos = datosCompletos.drop(columns=['Unnamed: 0'])
+
+#%%
+# Merge usando 'estado' y 'anio' como llaves
+datosCompletos = pd.merge(datosCompletos, df_pivoted, on=['estado', 'anio'], how='outer')
+
+# 7. Guardar el resultado final
+datosCompletos.to_csv("../datos/porcentajes.csv")
+# df_final.to_csv('porcentajes_unificados.csv', index=False)
+
+#%%
+
+
