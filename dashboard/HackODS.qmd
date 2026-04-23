@@ -163,103 +163,70 @@ px.scatter(
 
 ## Cifras en zoom {width="20%"}
 
-### Inasistencia Escolar {height="50%"}
+### Inasistencia Escolar Infantil {height="20%"}
 
 ```{python}
-#| title: "Brecha de inasistencia entre infancias y jóvenes - 2022"
+#| content: valuebox
+#| title: "Brecha de inasistencia entre infancias (3 a 15 años)"
 
-df_2022_sorted = (
+brecha = (
     porcentajes
-    .query('anio == @ano')
-    .sort_values('porc_tasa_inasistencia_3_15', ascending=False)
-    )
-
-df_edu_long = pd.melt(
-    df_2022_sorted,
-    id_vars=['estado'],
-    value_vars=['porc_tasa_inasistencia_3_15', 'porc_tasa_inasistencia_16_21'],
-    var_name='grupo',
-    value_name='porcentaje'
+    .query('anio == @ano & estado == @entidad')
+    .get(['porc_tasa_inasistencia_3_15', 'porc_tasa_inasistencia_16_21'])
 )
 
-df_edu_long['grupo'] = df_edu_long['grupo'].map({
-    'porc_tasa_inasistencia_3_15': 'Infancias (3-15)',
-    'porc_tasa_inasistencia_16_21': 'Juventud (16-21)'
-})
-
-
-fig_edu = px.bar(
-    df_edu_long,
-    y='estado',
-    x='porcentaje',
-    color='grupo',
-    orientation='h',
-    barmode='group',
-    color_discrete_map={
-        'Infancias (3-15)': '#0860ED',
-        'Juventud (16-21)': '#F3487E'
-    },
-    title="<b>Inasistencia Escolar en 2022</b>",
-    labels={'porcentaje': 'Porcentaje (%)', 'estado': '', 'grupo': ''},
-    range_x=[0, 80],
-    height=800,
-    category_orders={'estado': df_2022_sorted['estado'].tolist()}  
-)
-
-fig_edu
+{
+    'icon': 'egg', 
+    'color': '#0860ED', 
+    'value': '{}'.format( brecha['porc_tasa_inasistencia_3_15'].iloc[0] )
+}
 ```
 
-### Seguridad Alimentaria {height="50%"}
+### Inasistencia Escolar Juvenil {height="20%"}
 
 ```{python}
-#| title: "Niveles de inseguridad alimentaria por estado - 2022"
-df_2022_sorted_hambre = (
+#| content: valuebox
+#| title: "Brecha de inasistencia entre juventudes (16 a 21 años)"
+
+{
+    'icon': 'egg', 
+    'color': '#F3487E', 
+    'value': '{}'.format( brecha['porc_tasa_inasistencia_16_21'].iloc[0] )
+}
+```
+
+### Seguridad Alimentaria {height="55%"}
+
+```{python}
+#| title: Niveles de inseguridad alimentaria
+
+seguridad_alimentaria = (
     porcentajes
-    .query('anio == @ano')
-    .sort_values('porc_inseg_aliment_seve', ascending=False)
-    )
-
-df_hambre_long = pd.melt(
-    df_2022_sorted_hambre,
-    id_vars=['estado'],
-    value_vars=[
-        'porc_seg_aliment',
-        'porc_inseg_aliment_leve',
-        'porc_inseg_aliment_mode',
-        'porc_inseg_aliment_seve'
-    ],
-    var_name='nivel',
-    value_name='porcentaje'
+    .query('anio == @ano & estado == @entidad')
+    .get([
+        'porc_seg_aliment', 'porc_inseg_aliment_leve',
+        'porc_inseg_aliment_mode', 'porc_inseg_aliment_seve'
+    ])
+    .rename({
+        'porc_seg_aliment': 'Seguridad', 
+        'porc_inseg_aliment_leve': 'Inseguridad leve',
+        'porc_inseg_aliment_mode': 'Inseguridad moderada', 
+        'porc_inseg_aliment_seve': 'Inseguridad severa'
+    }, axis = 1)
+    .unstack()
+    .reset_index()
 )
 
-df_hambre_long['nivel'] = df_hambre_long['nivel'].map({
-    'porc_seg_aliment': 'Seguridad',
-    'porc_inseg_aliment_leve': 'Leve',
-    'porc_inseg_aliment_mode': 'Moderada',
-    'porc_inseg_aliment_seve': 'Severa (Hambre)'
-})
-
-
-fig_hambre = px.bar(
-    df_hambre_long,
-    y='estado',
-    x='porcentaje',
-    color='nivel',
-    orientation='h',
-    barmode='stack',
-    color_discrete_map={
-        'Seguridad': '#2E7D32',
-        'Leve': '#FBC02D',
-        'Moderada': '#EF6C00',
-        'Severa (Hambre)': '#C62828'
-    },
-    title="<b>Distribución Alimentaria en 2022</b>",
-    labels={'porcentaje': 'Porcentaje (%)', 'estado': '', 'nivel': ''},
-    range_x=[0, 100],
-    height=800,
-    category_orders={'estado': df_2022_sorted_hambre['estado'].tolist()}  
+fig = px.pie(
+    seguridad_alimentaria, values = 0, names = 'level_0', color = 'level_0',
+    color_discrete_map = {
+        'Seguridad': 'green',
+        'Inseguridad leve': 'yellow',
+        'Inseguridad moderada': 'orange',
+        'Inseguridad severa': 'red'
+        }
 )
 
-fig_hambre
+fig.update_layout(showlegend = False)
 ```
 
