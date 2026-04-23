@@ -5,6 +5,7 @@ format:
   dashboard:
     theme: cosmo
     orientation: columns
+jupyter: conda-env-hackods-py
 ---
 
 ```{python}
