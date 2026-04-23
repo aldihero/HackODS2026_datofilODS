@@ -93,7 +93,74 @@ dfs = [tmp1, tmp2, tmp3]
 dfsTemp = reduce(lambda left, right: pd.merge(left, right, on=['estado', 'anio'], how='outer'), dfs)
 # %%
 datosCompletos = pd.merge(datosCompletos, dfsTemp, on=['estado', 'anio'], how='outer')
-datosCompletos.to_csv("../datos/porcentajes.csv")
+
 # %%
 
+# %%
+# Datos de ocupación infantil 
+
+# 1. Cargar los archivos originales
+# Nota: Asegúrate de que los nombres de los archivos coincidan con los tuyos
+df_edu_raw = pd.read_csv('../datos/Tasa_abandono_escolar_entidad_federativa.csv', skiprows=5)
+
+# 2. Limpieza inicial del archivo de Educación (INEGI)
+# Limpiar espacios en blanco en los nombres de las columnas
+df_edu_raw.columns = [c.strip() for c in df_edu_raw.columns]
+
+# Renombrar columnas clave para facilitar el manejo
+df_edu = df_edu_raw.rename(columns={
+    'Entidad federativa': 'estado', 
+    'Nivel educativo': 'nivel'
+})
+
+# 3. Transformar la tabla de formato ancho a largo (Melt)
+# Esto pasa los años de columnas a una sola columna llamada 'ciclo'
+df_melted = df_edu.melt(
+    id_vars=['estado', 'nivel'], 
+    value_vars=['2015/2016', '2020/2021', '2021/2022'],
+    var_name='ciclo', 
+    value_name='tasa_abandono'
+)
+
+# 4. Convertir Ciclo Escolar a Año numérico
+# Ejemplo: '2015/2016' -> 2016 (para que coincida con tus datos de hambre)
+def extraer_anio(ciclo):
+    try:
+        return int(ciclo.split('/')[1])
+    except:
+        return None
+
+df_melted['anio'] = df_melted['ciclo'].apply(extraer_anio)
+
+# 5. Pivotar los niveles educativos a columnas
+# Queremos que cada nivel (Primaria, Secundaria, etc.) sea una columna propia
+df_pivoted = df_melted.pivot_table(
+    index=['estado', 'anio'], 
+    columns='nivel', 
+    values='tasa_abandono'
+).reset_index()
+
+# Limpiar los nombres de las nuevas columnas
+df_pivoted.columns.name = None
+df_pivoted = df_pivoted.rename(columns={
+    'Primaria': 'tasa_abandono_primaria',
+    'Secundaria': 'tasa_abandono_secundaria',
+    'Media superior': 'tasa_abandono_media_superior',
+    'Superior': 'tasa_abandono_superior'
+})
+
+# 6. Unificar con el archivo de porcentajes original
+# Eliminamos la columna 'Unnamed: 0' si existe para que no estorbe
+if 'Unnamed: 0' in datosCompletos.columns:
+    datosCompletos = datosCompletos.drop(columns=['Unnamed: 0'])
+
+# Merge usando 'estado' y 'anio' como llaves
+datosCompletos = pd.merge(datosCompletos, df_pivoted, on=['estado', 'anio'], how='outer')
+
+# 7. Guardar el resultado final
+datosCompletos.to_csv("../datos/porcentajes.csv")
+# df_final.to_csv('porcentajes_unificados.csv', index=False)
+
+# %%
+dfTest = pd.read_csv('../datos/porcentajes.csv')
 # %%
