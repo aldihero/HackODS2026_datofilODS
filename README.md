@@ -12,6 +12,7 @@ Estudiante de maestría en Ciencia de Datos, con formación en ingeniería, dere
 
 ### Daniel Mondragon Tapia
 
+Desarrollador de Software con enfoque en sistemas de alto rendimiento. Estudiante en Economía. Me interesa la intersección entre la tecnología y las ciencias sociales.
 
 [Declaración de uso de IA](ai-log.md)
 ---
@@ -46,11 +47,27 @@ Estudiante de maestría en Ciencia de Datos, con formación en ingeniería, dere
     - `'porc_carencia_12_17'`: Personas con carencia entre 12 y 17 años
 - **Justificación de selección de datos** Los datos del CONEVAL son relevantes porque vinculan directamente  dimensiones de la pobreza multidimensional como lo es el rezago educativo e inseguridad alimentaria para demostrar con evidencia empírica que el hambre es un obstáculo para el acceso a la educación y avanzar en ella. Los datos incluyen cuatro años de medición (2016-2022) lo que nos permitirá comparar cómo ha sido el impacto de esas variables para la educación, los datos posibilitan cuestionar el sesgo que responsabiliza individualmente a las personas de su situación educativa, cuando en realidad la carencia alimentaria y carencias en general inciden en la inasistencia escolar. Además la tasa de abandono escolar proporcionado por el INEGI ayudará a encontrar relaciones más cercanas al impacto que tienen las carencias de pobreza con el estudio.
 
+    ## Datos
+
+- **Fuentes** 
+    - Consejo Nacional de Evaluación de la Política de Desarrollo Social (CONEVAL). (2022). "Anexo estadísti​co de pobreza en México". [Base de datos en línea]. Recuperado el 7 de abril de 2026 de https://www.coneval.org.mx/Medicion/MP/Documents/MMP_2022/AE_estatal_2022.zip Para condiciones de uso https://www.coneval.org.mx/Paginas/Pie/terminos-uso-libre.aspx 
+    - INEGI  Tasa de abandono escolar por entidad federativa según nivel educativo, ciclos escolares seleccionados de 2000/2001 a 2023/2024  Recuperado el 7 de abril de 2026 de https://www.inegi.org.mx/app/tabulados/interactivos/?px=Educacion_11&bd=Educacion 
+- **Fecha de descarga** 07-abril-2026
+- **Licencia Uso Libre con Atribución** Permite copia, distribución, adaptación y uso comercial, siempre que se dé crédito al CONEVAL, no se alteren metadatos, no se tergiverse el sentido original y no se implique aval oficial.
+- **Descripción de variables** Se tomaron en cuenta variables relacionadas a rezago educativo, carencia alimentaria y carencias en general. Los valores de todas las variables exceptuando `'estado'` y `'anio'` indican porcentajes.
+
+Link de descarga de datos compilados:
+TODO --- Documentar origen y estructura
+https://drive.google.com/file/d/1CBTqcbOAZbm1xlSVOKFV9mA-cErVV4uK/view?usp=drive_link
 
 
 # Storytelling
 
-Como se menciona en la descripción de este proyecto el problema que se quiere abordar es hacer visible el sesgo que tenemos como población sobre que no todos pueden estudiar tan facilmente, no basta con que la educación sea gratuita por lo que queremos contestar a la pregunta ¿Es verdad que todos podemos acceder a la educación?, para poder sensibilizar a la población y evitar que se siga propagando ese pensamiento dañino para todos en la sociedad acerca de "pues que se pongan a estudiar en vez de …", es un pensamiento limitante para todos y evita buscar soluciones al problema. Para poder evidenciarlo queremos resaltar los datos que muestran a las poblaciones que dejan de asistir a la escuela especialmente en el nivel educativo básico y cómo se relaciona con los niveles de pobreza en diferentes ámbitos como lo es la alimentación, carencias sociales y carencias en general, así como también resaltar las tasas de abandono escolar en ese nivel para reflejar un poco mejor cómo está México. Es importante compartir una visualización completa del país para indicar a dónde que tenemos que voltear y proponer soluciones, el hecho de hacer conscientización ayudará a que como sociedad podamos solventar esas carencias y dejemos de señalar sin argumentos. 
+Buscamos hacer visible el sesgo que tenemos como población con respecto al acceso a la educación. No basta con que la educación sea gratuita, tiene que ser accesible, justa y de calidad. Queremos contestar la pregunta: ¿Es verdad que todos podemos acceder a la educación?, con el objetivo de concientizar sobre los problemas educativos que existen en gran parte de la población y así evitar que se sigan propagando sesgos dañinos comunes, por ejemplo: "pues que se pongan a estudiar en vez de …", es un pensamiento limitante para todos y evade buscar soluciones al problema.
+
+Para poder evidenciar los problemas de educación resaltamos los datos que muestran las poblaciones que dejan de asistir a la escuela especialmente en el nivel educativo básico y cómo se relaciona con los niveles de pobreza en diferentes ámbitos como lo es la alimentación, carencias sociales y carencias en general, así como también resaltar las tasas de abandono escolar en ese nivel para reflejar un poco mejor cómo está México.
+
+Nuestro objetivo principal es exponer y visualizar la estructura educativa completa del país para indicar a dónde que tenemos que voltear y consecuentemente proponer soluciones, concientizar, divulgar y exponer problemas ayuda a que en sociedad podamos solventar esas carencias y dejemos de señalar sin argumentos. 
 
 # Prototipo
 El tablero al momento cuenta con 3 gráficas principales, reflejando datos del 2022 en el que se visualiza la inasistencia escolar en diferentes grupos en infancias de 6 a 11 y adolescentes 12 a 17 años, por otro lado está un gráfico que refleja la inseguridad alimentaria severa en todo el país dandonos un primer indicio de los estados que presentan este problema con mayor intensidad. Finalmente está nuestro mapa que refleja qué estados cuentan con inseguridad alimentaria. 
