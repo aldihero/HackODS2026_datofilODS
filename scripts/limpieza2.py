@@ -162,7 +162,7 @@ df_final = pd.merge(datosCompletos, df_enti[['estado', 'anio', 'pob_total_hogare
 
 #%%
 # # 4. Guardar el resultado
-df_final.to_csv('porcentajes_2.csv', index=False)
+df_final.to_csv('../datos/porcentajes_2.csv', index=False)
 
 print("¡Integración completada con éxito!")
 print(f"Nueva columna añadida: 'pob_total_hogares_menores_5_17'")
