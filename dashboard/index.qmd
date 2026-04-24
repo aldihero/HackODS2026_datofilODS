@@ -107,22 +107,8 @@ vars_porcentajes = {
 ```
 # Inicio
 
----
-title: "Embudo de Retención Educativa en México"
-author: "Análisis de Matrícula Escolar"
-date: last-modified
-format: 
-  html:
-    code-fold: true
-    self-contained: true
-execute:
-  warning: false
-  message: false
----
 
-# Introducción
-
-Este documento presenta un análisis de la retención escolar en México, desde el nivel primaria hasta el nivel superior, utilizando datos nacionales de matrícula.
+<!-- Este documento presenta un análisis de la retención escolar en México, desde el nivel primaria hasta el nivel superior, utilizando datos nacionales de matrícula. -->
 
 ```{python}
 
@@ -215,7 +201,6 @@ fig.show()
 
 
 # Desenlace 
-<!-- ## Controles {.sidebar} -->
 
 ```{python}
 anos = sorted(porcentajes['anio'].unique())
