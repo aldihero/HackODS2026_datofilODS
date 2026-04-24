@@ -3,7 +3,7 @@ title: "La Educación Puede Esperar, el Hambre No"
 author: "DatofilODS"
 format: 
   dashboard:
-    theme: cosmo
+    theme: darkly
     orientation: columns
     scrolling: true
 jupyter: conda-env-hackods-py
@@ -19,6 +19,7 @@ import json
 import numpy as np
 from ipywidgets import interact, Dropdown
 from IPython.display import display
+from scipy.stats import linregress
 
 # Cargar datos de porcentajes
 porcentajes = (
@@ -79,9 +80,22 @@ carencia = (
 ANIO = 2022
 df_analisis = porcentajes[porcentajes['anio'] == ANIO].copy()
 
-print(f"📊 Análisis para el año {ANIO}")
-print(f"🗺️  Entidades analizadas: {len(df_analisis)} estados")
-print(f"\n✅ Datos cargados correctamente")
+# print(f"📊 Análisis para el año {ANIO}")
+# print(f"🗺️  Entidades analizadas: {len(df_analisis)} estados")
+# print(f"\n✅ Datos cargados correctamente")
+
+ANIO  = 2022
+var_x = 'porc_pob_16mas_sin_prim'
+var_y = 'porc_pob_16mas_sin_secu'
+
+datos = porcentajes.query('anio == @ANIO').dropna(subset=[var_x, var_y])
+
+# ── Regresión ────────────────────────────────────────────────────────
+slope, intercept, r_value, p_value_reg, std_err = linregress(datos[var_x], datos[var_y])
+corr = r_value
+x_line = np.linspace(datos[var_x].min(), datos[var_x].max(), 100)
+y_line = slope * x_line + intercept
+
 ```
 
 ```{python}
@@ -105,7 +119,115 @@ vars_porcentajes = {
     'porc_carencia_12_17_y': 'porc_carencia_12_17_y' # ¿Qué es esto?
 }
 ```
-# Inicio
+# Rezago
+## Rezago educativo  {height="50%"}
+```{python} 
+#|title: Estados ordenados por rezago educativo
+# Ordenar datos por rezago
+datos_sorted = datos.sort_values(var_x, ascending=True)
+
+# Crear gráfico de barras horizontales comparativo
+fig = go.Figure()
+
+# Barras para sin primaria
+fig = fig.add_trace(go.Bar(
+    y=datos_sorted['estado'],
+    x=datos_sorted[var_x],
+    name='Sin primaria completa',
+    orientation='h',
+    marker_color='#3498db',
+    hovertemplate='%{y}<br>Sin primaria: %{x:.1f}%<extra></extra>'
+))
+
+# Barras para sin secundaria
+fig = fig.add_trace(go.Bar(
+    y=datos_sorted['estado'],
+    x=datos_sorted[var_y],
+    name='Sin secundaria completa',
+    orientation='h',
+    marker_color='#e74c3c',
+    hovertemplate='%{y}<br>Sin secundaria: %{x:.1f}%<extra></extra>'
+))
+
+fig = fig.update_layout(
+    title={
+        'text': f'Rezago Educativo por Entidad Federativa<br><sup>Comparación entre generaciones | Año {ANIO}</sup>',
+        'x': 0.5,
+        'xanchor': 'center'
+    },
+    xaxis=dict(
+        title='Porcentaje de población (%)',
+        gridcolor='lightgray'
+    ),
+    yaxis=dict(
+        title='Entidad Federativa',
+        categoryorder='total ascending'
+    ),
+    barmode='group',
+    height=800,
+    width=900,
+    template='plotly_white',
+    legend=dict(
+        x=0.99,
+        y=0.01,
+        xanchor='right',
+        yanchor='bottom'
+    )
+)
+
+fig.show()
+```
+
+## {heigth="50%"} 
+
+```{python}
+irs_df = pd.read_csv('../datos/irs-localidad-2020.csv', encoding='utf-8')
+# Mostrar componentes del IRS
+componentes_irs = [
+    ('i_analf', 'Analfabetismo'),
+    ('i_asistesc', 'Inasistencia escolar'),
+    ('i_edbasinc', 'Educación básica incompleta'),
+    ('i_sdsalud', 'Sin servicios de salud'),
+    ('i_nosan', 'Sin sanitario'),
+    ('i_noagua', 'Sin agua entubada'),
+    ('i_nodren', 'Sin drenaje'),
+    ('i_noelec', 'Sin electricidad'),
+    ('i_nolav', 'Sin lavadora'),
+    ('i_noref', 'Sin refrigerador')
+]
+
+# Calcular promedios nacionales
+promedios_componentes = []
+for col, nombre in componentes_irs:
+    if col in irs_df.columns:
+        promedio = irs_df[col].mean()
+        promedios_componentes.append({'Componente': nombre, 'Promedio Nacional': promedio})
+
+comp_df = pd.DataFrame(promedios_componentes)
+
+# Crear gráfico de barras
+fig = px.bar(
+    comp_df,
+    x='Componente',
+    y='Promedio Nacional',
+    title='Componentes del Índice de Rezago Social (IRS)<br><sup>Promedios nacionales | Censo 2020</sup>',
+    labels={'Promedio Nacional': 'Valor promedio del indicador'},
+    color='Promedio Nacional',
+    color_continuous_scale='RdYlBu_r'
+)
+
+fig = fig.update_layout(
+    xaxis_tickangle=-45,
+    height=450,
+    template='plotly_white',
+    showlegend=False
+)
+
+fig.show()
+```
+
+
+# Educación perdida
 
 
 <!-- Este documento presenta un análisis de la retención escolar en México, desde el nivel primaria hasta el nivel superior, utilizando datos nacionales de matrícula. -->
@@ -449,20 +571,20 @@ fig.show()
 #| echo: false
 #| warning: false
 
-from scipy.stats import linregress
+# from scipy.stats import linregress
 
 # ── Variables ────────────────────────────────────────────────────────
-ANIO  = 2022
-var_x = 'porc_pob_16mas_sin_prim'
-var_y = 'porc_pob_16mas_sin_secu'
+# ANIO  = 2022
+# var_x = 'porc_pob_16mas_sin_prim'
+# var_y = 'porc_pob_16mas_sin_secu'
 
-datos = porcentajes.query('anio == @ANIO').dropna(subset=[var_x, var_y])
+# datos = porcentajes.query('anio == @ANIO').dropna(subset=[var_x, var_y])
 
-# ── Regresión ────────────────────────────────────────────────────────
-slope, intercept, r_value, p_value_reg, std_err = linregress(datos[var_x], datos[var_y])
-corr = r_value
-x_line = np.linspace(datos[var_x].min(), datos[var_x].max(), 100)
-y_line = slope * x_line + intercept
+# # ── Regresión ────────────────────────────────────────────────────────
+# slope, intercept, r_value, p_value_reg, std_err = linregress(datos[var_x], datos[var_y])
+# corr = r_value
+# x_line = np.linspace(datos[var_x].min(), datos[var_x].max(), 100)
+# y_line = slope * x_line + intercept
 
 # ── Figura ───────────────────────────────────────────────────────────
 fig = go.Figure()
@@ -609,109 +731,3 @@ fig.update_layout(showlegend = False)
 ```
 
 
-# Entidades
-## Rezago educativo  {height="50%"}
-```{python} 
-#|title: Estados ordenados por rezago educativo
-# Ordenar datos por rezago
-datos_sorted = datos.sort_values(var_x, ascending=True)
-
-# Crear gráfico de barras horizontales comparativo
-fig = go.Figure()
-
-# Barras para sin primaria
-fig = fig.add_trace(go.Bar(
-    y=datos_sorted['estado'],
-    x=datos_sorted[var_x],
-    name='Sin primaria completa',
-    orientation='h',
-    marker_color='#3498db',
-    hovertemplate='%{y}<br>Sin primaria: %{x:.1f}%<extra></extra>'
-))
-
-# Barras para sin secundaria
-fig = fig.add_trace(go.Bar(
-    y=datos_sorted['estado'],
-    x=datos_sorted[var_y],
-    name='Sin secundaria completa',
-    orientation='h',
-    marker_color='#e74c3c',
-    hovertemplate='%{y}<br>Sin secundaria: %{x:.1f}%<extra></extra>'
-))
-
-fig = fig.update_layout(
-    title={
-        'text': f'Rezago Educativo por Entidad Federativa<br><sup>Comparación entre generaciones | Año {ANIO}</sup>',
-        'x': 0.5,
-        'xanchor': 'center'
-    },
-    xaxis=dict(
-        title='Porcentaje de población (%)',
-        gridcolor='lightgray'
-    ),
-    yaxis=dict(
-        title='Entidad Federativa',
-        categoryorder='total ascending'
-    ),
-    barmode='group',
-    height=800,
-    width=900,
-    template='plotly_white',
-    legend=dict(
-        x=0.99,
-        y=0.01,
-        xanchor='right',
-        yanchor='bottom'
-    )
-)
-
-fig.show()
-```
-
-## {heigth="50%"} 
-
-```{python}
-irs_df = pd.read_csv('../datos/irs-localidad-2020.csv', encoding='utf-8')
-# Mostrar componentes del IRS
-componentes_irs = [
-    ('i_analf', 'Analfabetismo'),
-    ('i_asistesc', 'Inasistencia escolar'),
-    ('i_edbasinc', 'Educación básica incompleta'),
-    ('i_sdsalud', 'Sin servicios de salud'),
-    ('i_nosan', 'Sin sanitario'),
-    ('i_noagua', 'Sin agua entubada'),
-    ('i_nodren', 'Sin drenaje'),
-    ('i_noelec', 'Sin electricidad'),
-    ('i_nolav', 'Sin lavadora'),
-    ('i_noref', 'Sin refrigerador')
-]
-
-# Calcular promedios nacionales
-promedios_componentes = []
-for col, nombre in componentes_irs:
-    if col in irs_df.columns:
-        promedio = irs_df[col].mean()
-        promedios_componentes.append({'Componente': nombre, 'Promedio Nacional': promedio})
-
-comp_df = pd.DataFrame(promedios_componentes)
-
-# Crear gráfico de barras
-fig = px.bar(
-    comp_df,
-    x='Componente',
-    y='Promedio Nacional',
-    title='Componentes del Índice de Rezago Social (IRS)<br><sup>Promedios nacionales | Censo 2020</sup>',
-    labels={'Promedio Nacional': 'Valor promedio del indicador'},
-    color='Promedio Nacional',
-    color_continuous_scale='RdYlBu_r'
-)
-
-fig = fig.update_layout(
-    xaxis_tickangle=-45,
-    height=450,
-    template='plotly_white',
-    showlegend=False
-)
-
-fig.show()
-```
