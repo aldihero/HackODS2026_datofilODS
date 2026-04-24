@@ -1,0 +1,37 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "La Educación Puede Esperar, el Hambre No",
+    "section": "",
+    "text": "Code\nvars_porcentajes = {\n    'porc_pob_3_21_no_asist_sin_oblig': 'Población de 3 a 21 años que no asiste a educación obligatoria', \n    'porc_pob_16mas_sin_secu': 'Población de 16 años o más sin educación secundaria', \n    'porc_pob_16mas_sin_prim': 'Población de 15 años o más sin educación primaria',\n    'porc_tasa_inasistencia_3_15': 'Tasa de inasistencia de 3 a 15 años', \n    'porc_tasa_inasistencia_16_21': 'Tasa de inasistencia de 16 a 21 años', \n    'porc_seg_aliment': 'Porcentaje de seguridad alimentaria', \n    'porc_inseg_aliment_leve': 'Porcentaje de inseguridad alimentaria leve',\n    'porc_inseg_aliment_mode': 'Porcentaje de inseguridad alimentaria moderada', \n    'porc_inseg_aliment_seve': 'Porcentaje de inseguridad alimentaria severa', \n    'porc_limit_consumo': 'porc_limit_consumo', # ¿Qué es esto?\n    'porc_carencia_menor18_x': 'porc_carencia_menor18_x', # ¿Qué es esto?\n    'porc_carencia_menor18_y': 'porc_carencia_menor18_y', # ¿Qué es esto?\n    'porc_carencia_6_11_x': 'porc_carencia_6_11_x', # ¿Qué es esto?\n    'porc_carencia_12_17_x': 'porc_carencia_12_17_x', # ¿Qué es esto?\n    'porc_carencia_menor18': 'porc_carencia_menor18',# ¿Qué es esto?\n    'porc_carencia_6_11_y': 'porc_carencia_6_11_y', # ¿Qué es esto?\n    'porc_carencia_12_17_y': 'porc_carencia_12_17_y' # ¿Qué es esto?\n}"
+  },
+  {
+    "objectID": "index.html#información-principal",
+    "href": "index.html#información-principal",
+    "title": "La Educación Puede Esperar, el Hambre No",
+    "section": "Información principal",
+    "text": "Información principal\n\nMapa de carencia alimentaria\n\n\n\n                            \n                                            \nCorrelaciones relevantes con el abandono escolar\n\n\n\n\n\n\nContinuidad del rezago educativo"
+  },
+  {
+    "objectID": "index.html#cifras-en-zoom",
+    "href": "index.html#cifras-en-zoom",
+    "title": "La Educación Puede Esperar, el Hambre No",
+    "section": "Cifras en zoom",
+    "text": "Cifras en zoom\n\nInasistencia Escolar Infantil\n\n\nCode\nbrecha = (\n    porcentajes\n    .query('anio == @ano & estado == @entidad')\n    .get(['porc_tasa_inasistencia_3_15', 'porc_tasa_inasistencia_16_21'])\n)\n\n{\n    'icon': 'egg', \n    'color': '#0860ED', \n    'value': '{}'.format( brecha['porc_tasa_inasistencia_3_15'].iloc[0] )\n}\n\n\n{'icon': 'egg', 'color': '#0860ED', 'value': '9.3'}\n\n\n\n\nInasistencia Escolar Juvenil\n\n\nCode\n{\n    'icon': 'egg', \n    'color': '#F3487E', \n    'value': '{}'.format( brecha['porc_tasa_inasistencia_16_21'].iloc[0] )\n}\n\n\n{'icon': 'egg', 'color': '#F3487E', 'value': '60.7'}\n\n\n\n\nSeguridad Alimentaria\n\n\nCode\nseguridad_alimentaria = (\n    porcentajes\n    .query('anio == @ano & estado == @entidad')\n    .get([\n        'porc_seg_aliment', 'porc_inseg_aliment_leve',\n        'porc_inseg_aliment_mode', 'porc_inseg_aliment_seve'\n    ])\n    .rename({\n        'porc_seg_aliment': 'Seguridad', \n        'porc_inseg_aliment_leve': 'Inseguridad leve',\n        'porc_inseg_aliment_mode': 'Inseguridad moderada', \n        'porc_inseg_aliment_seve': 'Inseguridad severa'\n    }, axis = 1)\n    .unstack()\n    .reset_index()\n)\n\nfig = px.pie(\n    seguridad_alimentaria, values = 0, names = 'level_0', color = 'level_0',\n    color_discrete_map = {\n        'Seguridad': 'green',\n        'Inseguridad leve': 'yellow',\n        'Inseguridad moderada': 'orange',\n        'Inseguridad severa': 'red'\n        }\n)\n\nfig.update_layout(showlegend = False)"
+  },
+  {
+    "objectID": "index.html#rezago-educativo",
+    "href": "index.html#rezago-educativo",
+    "title": "La Educación Puede Esperar, el Hambre No",
+    "section": "Rezago educativo",
+    "text": "Rezago educativo\n\n\nCode\n# Ordenar datos por rezago\ndatos_sorted = datos.sort_values(var_x, ascending=True)\n\n# Crear gráfico de barras horizontales comparativo\nfig = go.Figure()\n\n# Barras para sin primaria\nfig = fig.add_trace(go.Bar(\n    y=datos_sorted['estado'],\n    x=datos_sorted[var_x],\n    name='Sin primaria completa',\n    orientation='h',\n    marker_color='#3498db',\n    hovertemplate='%{y}&lt;br&gt;Sin primaria: %{x:.1f}%&lt;extra&gt;&lt;/extra&gt;'\n))\n\n# Barras para sin secundaria\nfig = fig.add_trace(go.Bar(\n    y=datos_sorted['estado'],\n    x=datos_sorted[var_y],\n    name='Sin secundaria completa',\n    orientation='h',\n    marker_color='#e74c3c',\n    hovertemplate='%{y}&lt;br&gt;Sin secundaria: %{x:.1f}%&lt;extra&gt;&lt;/extra&gt;'\n))\n\nfig = fig.update_layout(\n    title={\n        'text': f'Rezago Educativo por Entidad Federativa&lt;br&gt;&lt;sup&gt;Comparación entre generaciones | Año {ANIO}&lt;/sup&gt;',\n        'x': 0.5,\n        'xanchor': 'center'\n    },\n    xaxis=dict(\n        title='Porcentaje de población (%)',\n        gridcolor='lightgray'\n    ),\n    yaxis=dict(\n        title='Entidad Federativa',\n        categoryorder='total ascending'\n    ),\n    barmode='group',\n    height=800,\n    width=900,\n    template='plotly_white',\n    legend=dict(\n        x=0.99,\n        y=0.01,\n        xanchor='right',\n        yanchor='bottom'\n    )\n)\n\nfig.show()"
+  },
+  {
+    "objectID": "index.html#section",
+    "href": "index.html#section",
+    "title": "La Educación Puede Esperar, el Hambre No",
+    "section": "",
+    "text": "Code\nirs_df = pd.read_csv('../datos/irs-localidad-2020.csv', encoding='utf-8')\n# Mostrar componentes del IRS\ncomponentes_irs = [\n    ('i_analf', 'Analfabetismo'),\n    ('i_asistesc', 'Inasistencia escolar'),\n    ('i_edbasinc', 'Educación básica incompleta'),\n    ('i_sdsalud', 'Sin servicios de salud'),\n    ('i_nosan', 'Sin sanitario'),\n    ('i_noagua', 'Sin agua entubada'),\n    ('i_nodren', 'Sin drenaje'),\n    ('i_noelec', 'Sin electricidad'),\n    ('i_nolav', 'Sin lavadora'),\n    ('i_noref', 'Sin refrigerador')\n]\n\n# Calcular promedios nacionales\npromedios_componentes = []\nfor col, nombre in componentes_irs:\n    if col in irs_df.columns:\n        promedio = irs_df[col].mean()\n        promedios_componentes.append({'Componente': nombre, 'Promedio Nacional': promedio})\n\ncomp_df = pd.DataFrame(promedios_componentes)\n\n# Crear gráfico de barras\nfig = px.bar(\n    comp_df,\n    x='Componente',\n    y='Promedio Nacional',\n    title='Componentes del Índice de Rezago Social (IRS)&lt;br&gt;&lt;sup&gt;Promedios nacionales | Censo 2020&lt;/sup&gt;',\n    labels={'Promedio Nacional': 'Valor promedio del indicador'},\n    color='Promedio Nacional',\n    color_continuous_scale='RdYlBu_r'\n)\n\nfig = fig.update_layout(\n    xaxis_tickangle=-45,\n    height=450,\n    template='plotly_white',\n    showlegend=False\n)\n\nfig.show()"
+  }
+]
